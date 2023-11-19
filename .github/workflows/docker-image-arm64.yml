@@ -3,8 +3,7 @@ name: Publish Docker image (arm64)
 on:
   push:
     tags:
-      - 'v0.5.8'
-      - 'v0.5.8-alpha.4'
+      - '*'
   workflow_dispatch:
     inputs:
       name:
@@ -23,7 +22,7 @@ jobs:
 
       - name: Save version info
         run: |
-          git describe --tags > v0.5.8-alpha.4 
+          git describe --tags > VERSION 
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
