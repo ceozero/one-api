@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v0.5.8'
-      - '!*-alpha*'
+      - 'v0.5.8-alpha.4'
   workflow_dispatch:
     inputs:
       name:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Save version info
         run: |
-          git describe --tags > VERSION 
+          git describe --tags > v0.5.8-alpha.4 
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
