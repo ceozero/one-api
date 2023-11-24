@@ -3,6 +3,11 @@ name: Auto Publish Docker image (arm64)
 on:
   schedule:
     - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'reason'
+        required: false
 
 jobs:
   check_tag:
@@ -79,9 +84,3 @@ jobs:
           push: true
           tags: ${{ env.TAG }}
           labels: ${{ steps.meta.outputs.labels }}
-
-workflow_dispatch:
-  inputs:
-    name:
-      description: 'reason'
-      required: false
