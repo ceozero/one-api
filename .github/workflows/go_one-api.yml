@@ -1,0 +1,81 @@
+name: Publish Docker image (arm64)
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  check_tag:
+    name: Check for new tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get latest tag
+        uses: actions/github-script@v3
+        with:
+          script: |
+            const latestTag = await github.repos.getLatestTag({
+              owner: "songquanpeng",
+              repo: "one-api"
+            });
+            // 将最新标签名保存到环境变量中
+            const tag = latestTag.tag_name;
+            process.env.TAG = tag;
+
+  build_and_push:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    needs: check_tag
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v3
+
+      - name: Clone the source repository
+        uses: actions/checkout@v3
+        with:
+          repository: https://github.com/songquanpeng/one-api
+          path: source-repo
+
+      - name: Save version info
+        run: |
+          git describe --tags > VERSION
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ceozero/one-api
+            ghcr.io/${{ github.repository }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v3
+        with:
+          context: source-repo
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ env.TAG }}
+          labels: ${{ steps.meta.outputs.labels }}
