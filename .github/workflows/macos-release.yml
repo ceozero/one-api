@@ -2,11 +2,11 @@ name: macOS Release
 permissions:
   contents: write
 
-on:
-  push:
-    tags:
-      - '*'
-      - '!*-alpha*'
+# on:
+#   push:
+#     tags:
+#       - '*'
+#       - '!*-alpha*'
 jobs:
   release:
     runs-on: macos-latest
